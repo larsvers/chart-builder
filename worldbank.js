@@ -284,51 +284,60 @@ function god () {
 		'You can observe a lot by just watching. | Y Berra']
 
 	// initialise area and category
-	var file = 'data/world.csv';
-	// var file = 'data/dashboard - tight index.csv';
+	
+	var file;
 	var countrySelect = 'World';
 	var categorySelect = 'Population';
-	var perspectiveSelect = 'Lines';
+	var perspectiveSelect;
 	var developmentLevelLeft = 'Very High';
 	var developmentLevelRight = 'Low';
-	var navigationBouncer = 0; // decides if the country-selection applies to the dashboard-, the bubble- or the overall data-file (see the .area-listener for mechanics)
+	var navigationBouncer; // decides if the country-selection applies to the dashboard-, the bubble- or the overall data-file (see the .area-listener for mechanics)
 	// 0 = world file
 	// 1 = dashboard file
 	// 2 = profile file ! check
 	// 3 = brand capital file ! check
 	// 4 = chart builder with overall country file
-	
-	
-	d3.selectAll('li.change').style('display', 'inherit'); // zoom
-	d3.selectAll('li.perspective').style('display', 'inherit'); // visual
-	d3.selectAll('li.zoom').style('display', 'none'); // zoom
-	d3.selectAll('li.period').style('display', 'none'); // profile periods
 
-	// d3.selectAll('li.dash').style('color', '#fff'); // set colour
-	d3.selectAll('li.category').style('color', '#fff'); // set colour
-	d3.select('div#loadingContainer').style('display', 'none'); // hide quote
-	
-	// dashboard(file, countrySelect, categorySelect, perspectiveSelect);
-	
-	
-	// primary render function
-	d3.select('button#launchApp').on('mousedown', function() {
+	// In the original the code for the runBuilder function just lives in the li.builder event handler. I've moved it out here in order to be able to show the builder upon arrival on the page
+	var runBuilder = function(){
 
-		d3.selectAll('ul.nav.list li').style('color', '#ccc'); // set colour
-		d3.selectAll('li.category').style('color', '#fff'); // set colour
+			file = 'data/world.csv';
+			perspectiveSelect = 'Lines'; // force lines (attention: update when bars and data is allowed)
+			d3.select('#perspSpan').html('lines');
+			
+			navigationBouncer = 4;
 
-		navFunc(file, countrySelect, categorySelect, perspectiveSelect, developmentLevelLeft, developmentLevelRight);
-		
-	});
+			d3.selectAll('.box, .tooltip, #summaryHeadline').remove();
+			
+			d3.selectAll('li.builder').style('color','#fff'); // set colour
+			d3.selectAll('#dashSpan').html('summarise').style('color','#ccc'); // set colour
+			d3.selectAll('#categorySpan').html('trend').style('color','#ccc'); // set colour; // set neutral category
+			d3.selectAll('#scatterSpan').html('explore').style('color','#ccc'); // set colour
+
+			d3.selectAll('li.perspective').style('display','inherit'); // show perspective option
+			d3.selectAll('li#persp1').style('display', 'none'); // hide bars perspective
+			d3.selectAll('#perspSpan').html('lines'); // set perspective
+			perspectiveSelect = 'Lines'; // change 'global' to show lines so that the following example flow doesn't show lines on the menu but bar-charts on the screen: sweden>operator>bars >> chart builder(>lines forced) >> sweden>operator>lines but screen showing bars 
+			
+			d3.select('div#home').style('display', 'none'); // hide homepage html
+			d3.select('div#loadingContainer').style('display', 'none'); // hide quote
+			d3.selectAll('li.change').style('display', 'none'); // zoom
+			d3.selectAll('li.zoom').style('display', 'none'); // hide zoom option
+			d3.selectAll('li.period').style('display', 'none'); // hide periods
+
+			builder(file, countrySelect, perspectiveSelect);
+
+	};
+
+	runBuilder();
 	
-	// back to homepage
+	// globe picture as homepage button
 	d3.select('div.brand').on('mousedown', function() {
 
 		d3.selectAll('.box, .tooltip').remove();
 		d3.select('div#home').style('display', 'flex'); // hide homepage html
 		
 	});
-
 		
 	// navigation button listeners and handlers
 
@@ -490,34 +499,10 @@ function god () {
 	});
 
 	d3.selectAll('li.builder').on('mousedown', function() {
-		file = 'data/world.csv';
-		perspectiveSelect = 'Lines'; // force lines (attention: update when bars and data is allowed)
-		d3.select('#perspSpan').html('lines');
-		
-		navigationBouncer = 4;
 
-		d3.selectAll('.box, .tooltip, #summaryHeadline').remove();
-		
-		d3.selectAll('li.builder').style('color','#fff'); // set colour
-		d3.selectAll('#dashSpan').html('summarise').style('color','#ccc'); // set colour
-		d3.selectAll('#categorySpan').html('trend').style('color','#ccc'); // set colour; // set neutral category
-		d3.selectAll('#scatterSpan').html('explore').style('color','#ccc'); // set colour
-
-		d3.selectAll('li.perspective').style('display','inherit'); // show perspective option
-		d3.selectAll('li#persp1').style('display', 'none'); // hide bars perspective
-		d3.selectAll('#perspSpan').html('lines'); // set perspective
-		perspectiveSelect = 'Lines'; // change 'global' to show lines so that the following example flow doesn't show lines on the menu but bar-charts on the screen: sweden>operator>bars >> chart builder(>lines forced) >> sweden>operator>lines but screen showing bars 
-		
-		d3.select('div#home').style('display', 'none'); // hide homepage html
-		d3.select('div#loadingContainer').style('display', 'none'); // hide quote
-		d3.selectAll('li.change').style('display', 'none'); // zoom
-		d3.selectAll('li.zoom').style('display', 'none'); // hide zoom option
-		d3.selectAll('li.period').style('display', 'none'); // hide periods
-
-		builder(file, countrySelect, perspectiveSelect);
+		runBuilder();  
 
 	});
-
 
 	d3.selectAll('li.persp').on('mousedown', function() {
 		var perspId = d3.select(this).attr('id');
@@ -542,6 +527,7 @@ function god () {
 
 	
 	// modal and dataset-selection
+
 	d3.select('li.change').on('mousedown', function() {
 		if(d3.select('div.modal').style('display') === 'none') {
 			d3.select('div.modal').style('display', 'inherit');
